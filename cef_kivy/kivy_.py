@@ -9,6 +9,9 @@ from cefpython3 import cefpython as cef
 import sys
 import os
 import time
+
+from kivy.uix.behaviors import FocusBehavior
+
 if sys.platform == 'linux':
     import pygtk
     import gtk
@@ -36,6 +39,8 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDRectangleFlatButton
 from kivymd.uix.widget import MDWidget
 
+from cefbrowser import CEFBrowser
+
 # Global variables
 g_switches = None
 
@@ -46,7 +51,8 @@ class BrowserLayout(MDBoxLayout):
         super(BrowserLayout, self).__init__(**kwargs)
         self.orientation = "vertical"
 
-        self.browser_widget = CefBrowser()
+        # self.browser_widget = CefBrowser()
+        self.browser_widget = CEFBrowser('https://www.missionjuno.swri.edu/junocam/processing')
 
         layout = MDBoxLayout()
         layout.size_hint_y = None
@@ -61,12 +67,12 @@ class BrowserLayout(MDBoxLayout):
         layout.add_widget(
             MDRectangleFlatButton(text="Reload",
                                   on_press=self.browser_widget.reload))
-        layout.add_widget(
-            MDRectangleFlatButton(text="Print",
-                                  on_press=self.browser_widget.print_page))
-        layout.add_widget(
-            MDRectangleFlatButton(text="DevTools",
-                                  on_press=self.browser_widget.devtools))
+        # layout.add_widget(
+        #     MDRectangleFlatButton(text="Print",
+        #                           on_press=self.browser_widget.print_page))
+        # layout.add_widget(
+        #     MDRectangleFlatButton(text="DevTools",
+        #                           on_press=self.browser_widget.devtools))
 
         self.add_widget(layout)
         self.add_widget(self.browser_widget)

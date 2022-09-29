@@ -26,12 +26,12 @@ class DownloadScreen(MDScreen):
         self.add_widget(self.browser_layout)
 
     def get_url(self):
-        print(self.browser_layout.browser_widget.browser.GetUrl())
+        print(self.browser_layout.browser_widget._browser.GetUrl())
 
     def destroy_browser(self):
         # This is required for a clean shutdown of CEF.
-        self.browser_layout.browser_widget.browser.CloseBrowser(True)
-        del self.browser_layout.browser_widget.browser
+        self.browser_layout.browser_widget._browser.CloseBrowser(True)
+        del self.browser_layout.browser_widget._browser
 
 
 class EditScreen(MDScreen):
