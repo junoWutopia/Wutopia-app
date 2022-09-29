@@ -1,0 +1,25 @@
+MDBoxLayout:
+    MDNavigationRail:
+        id: navigation_rail
+        MDNavigationRailItem:
+            text: "Home"
+            icon: "home"
+            on_release:
+                app.manager.current = 'home'
+        MDNavigationRailItem:
+            text: "Download"
+            icon: "file-download"
+            on_release:
+                app.manager.current = 'download'
+        MDNavigationRailItem:
+            text: "Edit"
+            icon: "tune"
+
+    ScreenManager:
+        id: screen_manager
+
+<DownloadScreen>:
+    Button:
+        text: "Get Url"
+        on_release:
+            root.get_url()
