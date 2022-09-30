@@ -175,8 +175,9 @@ class CEFBrowser(Widget, FocusBehavior):
                 {"windowless_frame_rate": 60},
                 navigateUrl=self.url,
             )
-        self._browser.SetClientHandler(client_handler)
-        client_handler.browser_widgets[self._browser] = self
+        self.client_handler = client_handler
+        self._browser.SetClientHandler(self.client_handler)
+        self.client_handler.browser_widgets[self._browser] = self
         self._browser.WasResized()
         self.bind(size=self._realign)
         self.bind(pos=self._realign)
@@ -184,6 +185,10 @@ class CEFBrowser(Widget, FocusBehavior):
         self.bind(focus=self._on_focus)
         self.html5_drag_representation = Factory.HTML5DragIcon()
         self.js._inject()
+
+    def check_download(self):
+        print(not self.client_handler.download_enabled)
+        return not self.client_handler.download_enabled
 
     @classmethod
     def update_flags(cls, d):
@@ -319,10 +324,10 @@ class CEFBrowser(Widget, FocusBehavior):
         if self.__rect:
             self.__rect.texture = self._texture
 
-    def go_back(self):
+    def go_back(self, *_):
         self._browser.GoBack()
 
-    def go_forward(self):
+    def go_forward(self, *_):
         self._browser.GoForward()
 
     def stop_loading(self):
@@ -599,11 +604,11 @@ class CEFBrowser(Widget, FocusBehavior):
             if touch.button in ["scrollup", "scrolldown"]:
                 x = touch.x
                 y = self.height - touch.pos[1]
-                deltaY = -40 if "scrollup" == touch.button else 40
-                print(x, y, deltaY)
-                print(self._touches, self.ignored_touch)
-
-                self.cef_mouse_wheel(x, y, dx=0, dy=deltaY * 3)
+                deltaY = -120 if "scrollup" == touch.button else 120
+                # print(x, y, deltaY)
+                # print(self._touches, self.ignored_touch)
+                # self._touches = []
+                self.cef_mouse_wheel(x, y, dx=0, dy=deltaY)
                 return
 
         if touch.grab_current is not self:
@@ -947,6 +952,7 @@ class ClientHandler:
 
     def __init__(self, *largs):
         self.browser_widgets = {}
+        self.download_enabled = False
 
     # DisplayHandler TODO: OnContentsSizeChange, OnFaviconURLChange,
     # OnNavStateChange
@@ -1398,6 +1404,9 @@ document.addEventListener("selectionchange", function (e) {
     def OnLoadEnd(self, browser, frame, http_code):  # noqa: N802
         bw = self.browser_widgets[browser]
         bw.dispatch("on_load_end", frame, http_code)
+        browserWidget = browser.GetUserData("browserWidget")
+        if browserWidget and browserWidget.keyboard_mode == "global":
+            browser.SendFocusEvent(True)
         # browser.SetZoomLevel(2.0) # this works at this point
 
     def OnLoadError(  # noqa: N802
@@ -1539,6 +1548,7 @@ document.addEventListener("selectionchange", function (e) {
         return True
 
     def UpdateDragCursor(self, browser, operation):  # noqa: N802
+        print(operation)
         self.browser_widgets[browser].current_drag_operation = operation
 
     # RequestHandler
@@ -1550,9 +1560,15 @@ document.addEventListener("selectionchange", function (e) {
         request,
         is_redirect,
     ):
-        frame.ExecuteJavascript("try {__kivy__on_escape();} catch (err) {}")
+        pass
+        # frame.ExecuteJavascript("try {__kivy__on_escape();} catch (err) {}")
 
-    def OnBeforeResourceLoad(self, browser, frame, request):  # noqa: N802
+    def OnBeforeResourceLoad(self, browser, frame,
+                             request: cefpython.PyRequest):  # noqa: N802
+        print(request.GetUrl())
+        if not self.download_enabled:
+            self.download_enabled = request.GetUrl().startswith('https://www.missionjuno.swri.edu/?ajax=markup')
+        # print(self.download_enabled)
         pass
 
     def GetResourceHandler(self, browser, frame, request):  # noqa: N802

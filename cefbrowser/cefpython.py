@@ -62,6 +62,18 @@ def cefpython_initialize(cef_browser_cls):
         "unique_request_context_per_browser": True,
         "context_menu": {"enabled": False, },
         "downloads_enabled": False,
+        "browser_subprocess_path":
+            "%s/%s" % (cefpython.GetModuleDirectory(), "subprocess"),
+        "windowless_rendering_enabled":
+            True,
+        "context_menu": {
+            # Disable context menu, popup widgets not supported
+            "enabled": False,
+        },
+        "external_message_pump":
+            False,  # See Issue #246
+        "multi_threaded_message_loop":
+            False,
     }
     default_settings.update(cef_browser_cls._settings)
     caches_path = os.path.join(sd, "caches")

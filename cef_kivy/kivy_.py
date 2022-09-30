@@ -1030,7 +1030,7 @@ class ClientHandler:
 class CefBrowserApp(App):
 
     def build(self):
-        self.layout = BrowserLayout()
+        self.layout = CefBrowser()
         return self.layout
 
     def on_stop(self):

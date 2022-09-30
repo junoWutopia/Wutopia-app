@@ -14,12 +14,48 @@ MDBoxLayout:
         MDNavigationRailItem:
             text: "Edit"
             icon: "tune"
+            on_release:
+                app.manager.current = 'edit'
 
     ScreenManager:
         id: screen_manager
 
+<HomeScreen>:
+
 <DownloadScreen>:
-#    Button:
- #       text: "Get Url"
-  #      on_release:
-   #         root.get_url()
+    BoxLayout:
+        id: box
+        orientation: "vertical"
+        height: root.height * 0.2
+        MDTopAppBar:
+            title: "Download image files from NASA"
+        MDLabel:
+            text: "Please enter image name or link below"
+            font_size: 20
+            pos_hint: {"x": 0.02}
+            size_hint: 1, 0.1
+        MDTextFieldRect:
+            padding: dp(15), dp(15)
+            id: text_field
+            size_hint: 0.8, 0.15
+            pos_hint: {"x": 0.015}
+            hint_text: "Image name or url"
+            multiline: False
+            font_size: 14
+            helper_text: ""
+            helper_text_mode: "on_error"
+        MDLabel:
+            markup: True
+            text:
+                ("Example:\n"
+                "(name) JUPITER PJ44 SOUTH TEMPERATE BELT\n"
+                "(url) https://www.missionjuno.swri.edu/junocam/"
+                "[color=#f00]processing?id=[/color]13796")
+            font_size: 14
+            pos_hint: {"x": 0.02}
+            size_hint: 1, 0.2
+
+<EditScreen>:
+
+
+

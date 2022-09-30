@@ -1,10 +1,13 @@
-from cefpython3 import cefpython as cef
+import re
 
+from cefpython3 import cefpython as cef
 from kivy.lang import Builder
+from kivy.properties import BooleanProperty
 from kivy.uix.screenmanager import NoTransition
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.widget import Widget
 from kivymd.app import MDApp
+from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.navigationdrawer import MDNavigationLayout
@@ -20,13 +23,13 @@ class HomeScreen(MDScreen):
 
 
 class DownloadScreen(MDScreen):
-    def __init__(self, **kwargs):
-        super(DownloadScreen, self).__init__(**kwargs)
-        self.browser_layout = BrowserLayout()
-        self.add_widget(self.browser_layout)
 
-    def get_url(self):
-        print(self.browser_layout.browser_widget._browser.GetUrl())
+    # download_enabled = BooleanProperty(False)
+
+    # def __init__(self, **kwargs):
+        # super(DownloadScreen, self).__init__(**kwargs)
+        # self.browser_layout = self.ids.browser_layout
+        # self.add_widget(self.browser_layout)
 
     def destroy_browser(self):
         # This is required for a clean shutdown of CEF.
@@ -47,12 +50,16 @@ class WutopiaApp(MDApp):
         self.manager: ScreenManager = self.root.ids.screen_manager
         self.manager.add_widget(HomeScreen(name='home'))
         self.manager.add_widget(DownloadScreen(name='download'))
+        self.manager.add_widget(EditScreen(name='edit'))
         self.manager.transition = NoTransition()
 
-    def on_stop(self):
-        self.manager.get_screen('download').destroy_browser()
+    # def on_stop(self):
+        # self.manager.get_screen('download').destroy_browser()
+    #     self.browser_layout.browser_widget._browser.CloseBrowser(True)
+    #     del self.browser_layout.browser_widget._browser
 
 
 if __name__ == '__main__':
-    WutopiaApp().run()
+    app = WutopiaApp()
+    app.run()
     cef.Shutdown()
