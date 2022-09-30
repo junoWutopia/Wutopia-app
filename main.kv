@@ -23,7 +23,7 @@ MDBoxLayout:
 <HomeScreen>:
 
 <DownloadScreen>:
-    BoxLayout:
+    MDBoxLayout:
         id: box
         orientation: "vertical"
         height: root.height * 0.2
@@ -34,16 +34,42 @@ MDBoxLayout:
             font_size: 20
             pos_hint: {"x": 0.02}
             size_hint: 1, 0.1
-        MDTextFieldRect:
-            padding: dp(15), dp(15)
+        MDTextField:
+            # padding: dp(15), dp(15)
             id: text_field
-            size_hint: 0.8, 0.15
-            pos_hint: {"x": 0.015}
             hint_text: "Image name or url"
-            multiline: False
+            size_hint: 0.8, None
+            width: dp(10)
+            pos_hint: {"x": 0.013}
+            # required: True
+            # multiline: False
             font_size: 14
-            helper_text: ""
+            on_focus: root.check_resource()
+            on_text_validate: root.check_resource()
+            helper_text: "Not a valid resource name or url"
             helper_text_mode: "on_error"
+        MDBoxLayout:
+            id: btn_box
+            spacing: dp(10)
+            size_hint: 0.8, 0.05
+            pos_hint: {"x": 0.015}
+            orientation: "horizontal"
+            MDRectangleFlatIconButton:
+                id: preview_resource_btn
+                padding: dp(10), dp(10)
+                icon: "eye"
+                text: "Preview resource"
+                disabled: True
+                on_press:
+                    root.preview_resource()
+            MDRectangleFlatIconButton:
+                id: download_resource_btn
+                padding: dp(10), dp(10)
+                icon: "download"
+                text: "Download resource"
+                disabled: True
+                on_press:
+                    root.download_resource()
         MDLabel:
             markup: True
             text:
@@ -56,6 +82,7 @@ MDBoxLayout:
             size_hint: 1, 0.2
 
 <EditScreen>:
-
+    MDLabel:
+        text: 'Edit Page'
 
 
