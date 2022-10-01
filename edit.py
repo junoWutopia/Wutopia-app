@@ -98,7 +98,7 @@ class EditScreen(MDScreen):
         self.ids.image.source = str(adjusted_path)
 
     @staticmethod
-    def normalize(slider_value: int) -> float:
+    def normalize(slider_value: float) -> float:
         if slider_value > 0:
             return 1.0 + slider_value / 100.0
         else:
