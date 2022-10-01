@@ -34,27 +34,25 @@ class Adjustment(MDBoxLayout):
             text=str(value),
             helper_text=f'Please enter a valid number between {min} and {max}',
             helper_text_mode='on_error',
-            on_text_validate=self.update_value_from_text_field,
+            # on_text_validate=self.update_value_from_text_field,
             size_hint_x=0.3)
+        self.text_field.bind(text=self.update_value_from_text_field)
 
         self.slider = MDSlider(value=value,
                                min=min,
                                max=max,
                                hint=True,
-                               show_off=True)
-        self.slider.bind(value=self.update_value_from_slider)
+                               show_off=False)
 
         self.add_widget(self.label)
         self.add_widget(MDBoxLayout(self.text_field, self.slider))
 
     def on_touch_up(self, touch):
-        MDApp.get_running_app().edit_pipeline_callback()
-
-    def update_value_from_slider(self, instance, value):
         self.value = self.slider.value
         self.text_field.text = f'{self.value:.0f}'
+        MDApp.get_running_app().edit_pipeline_callback()
 
-    def update_value_from_text_field(self, instance):
+    def update_value_from_text_field(self, *args):
         try:
             value = float(self.text_field.text)
             if value < self.min or value > self.max:  # Out of range
