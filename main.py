@@ -2,7 +2,6 @@ import re
 import time
 
 from bs4 import BeautifulSoup
-from cefpython3 import cefpython as cef
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.properties import BooleanProperty
@@ -21,9 +20,6 @@ from kivymd.uix.navigationdrawer import MDNavigationLayout
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.spinner import MDSpinner
-
-from cef_kivy.kivy_ import BrowserLayout
-from cef_kivy.kivy_ import CefBrowser
 
 from utils import *
 
@@ -107,11 +103,6 @@ class DownloadScreen(MDScreen):
     def download_resource(self):
         pass
 
-    def destroy_browser(self):
-        # This is required for a clean shutdown of CEF.
-        self.browser_layout.browser_widget._browser.CloseBrowser(True)
-        del self.browser_layout.browser_widget._browser
-
 
 class EditScreen(MDScreen):
     pass
@@ -138,4 +129,3 @@ class WutopiaApp(MDApp):
 if __name__ == '__main__':
     app = WutopiaApp()
     app.run()
-    cef.Shutdown()
