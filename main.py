@@ -1,15 +1,13 @@
 import re
 import time
+import zipfile
 
-import requests
 from bs4 import BeautifulSoup
 from kivy.lang import Builder
 from kivy.metrics import dp
-from kivy.properties import BooleanProperty
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import NoTransition
 from kivy.uix.screenmanager import ScreenManager
-from kivy.uix.widget import Widget
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.button import MDRectangleFlatButton
@@ -22,6 +20,7 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.snackbar import Snackbar
 from kivymd.uix.spinner import MDSpinner
+import requests
 
 from utils import *
 
@@ -29,6 +28,7 @@ DOMAIN = 'https://www.missionjuno.swri.edu'
 
 
 class PreviewContent(MDBoxLayout):
+
     def __init__(self, **kwargs):
         super(PreviewContent, self).__init__(**kwargs)
         self.orientation = 'vertical'
@@ -53,11 +53,12 @@ class PreviewContent(MDBoxLayout):
 
         file_path = f'tmp/{res_id}_preview.jpg'
         download('file', file_path, requests.get(lazy_img['src']))
-        self.label.text=''
+        self.label.text = ''
         self.add_widget(Image(source=file_path, size_hint_y=None))
 
 
 class DownloadContent(MDBoxLayout):
+
     def __init__(self, **kwargs):
         super(DownloadContent, self).__init__(**kwargs)
         self.orientation = 'vertical'
@@ -81,11 +82,11 @@ class HomeScreen(MDScreen):
 
 
 class DownloadScreen(MDScreen):
+
     def __init__(self, **kwargs):
         super(DownloadScreen, self).__init__(**kwargs)
         self.user_input = None
         self.res_id = None
-        self.session = requests.Session()
         # print(self.ids.text_field)
         # self.ids.text_field.bind(
         #     on_text_validate=self.check_resource,
@@ -115,13 +116,11 @@ class DownloadScreen(MDScreen):
     def show_preview_dialog(self):
         content = PreviewContent()
         ok_btn = MDFlatButton(text='OK')
-        dialog = MDDialog(
-            title='Preview',
-            type='custom',
-            content_cls=content,
-            buttons=[ok_btn],
-            on_open=self.preview_resource
-        )
+        dialog = MDDialog(title='Preview',
+                          type='custom',
+                          content_cls=content,
+                          buttons=[ok_btn],
+                          on_open=self.preview_resource)
         ok_btn.bind(on_press=dialog.dismiss)
         dialog.open()
         # content.download_preview(self.user_input, self.res_id)
@@ -131,13 +130,11 @@ class DownloadScreen(MDScreen):
 
     def show_download_dialog(self):
         content = DownloadContent()
-        dialog = MDDialog(
-            title=f'Downloading...',
-            type='custom',
-            content_cls=content,
-            on_open=self.download_resource,
-            on_pre_dismiss=self.show_done_snackbar
-        )
+        dialog = MDDialog(title=f'Downloading...',
+                          type='custom',
+                          content_cls=content,
+                          on_open=self.download_resource,
+                          on_pre_dismiss=self.show_done_snackbar)
         dialog.open()
 
     @staticmethod
@@ -145,22 +142,28 @@ class DownloadScreen(MDScreen):
         Snackbar(text='Done').open()
 
     def download_resource(self, dialog):
-        r_page = self.session.get(self.user_input)
+        r_page = requests.get(self.user_input)
         r_page_soup = BeautifulSoup(r_page.text, 'html.parser')
         # print(r_page_soup.title)
-        processing = r_page_soup.find(
-            'div',
-            {'class':
-                 'processing_tools half stack_full textright padT_half right'}
-        )
+        processing = r_page_soup.find('div', {
+            'class':
+                'processing_tools half stack_full textright padT_half right'
+        })
 
-        for zip_tag in processing.find_all('a',
-                                           {'class': 'marR download_zip'}):
+        save_dir = Path('data') / self.res_id
+        for zip_tag in processing.find_all('a', {'class': 'marR download_zip'}):
             dl_url = DOMAIN + zip_tag['href']
-            download('dir', f'data/{self.res_id}',
-                     self.session.get(dl_url, stream=True))
+            download('dir', save_dir, requests.get(dl_url, stream=True))
+
+        for file in save_dir.iterdir():
+            if file.suffix == '.zip':
+                unzip(file)
 
         dialog.dismiss()
+
+
+class MyFilesScreen(MDScreen):
+    pass
 
 
 class EditScreen(MDScreen):
@@ -168,6 +171,7 @@ class EditScreen(MDScreen):
 
 
 class WutopiaApp(MDApp):
+
     def build(self):
         self.theme_cls.primary_palette = 'Teal'
         return Builder.load_file('main.kv')
@@ -176,6 +180,7 @@ class WutopiaApp(MDApp):
         self.manager: ScreenManager = self.root.ids.screen_manager
         self.manager.add_widget(HomeScreen(name='home'))
         self.manager.add_widget(DownloadScreen(name='download'))
+        self.manager.add_widget(MyFilesScreen(name='my_files'))
         self.manager.add_widget(EditScreen(name='edit'))
         self.manager.transition = NoTransition()
 

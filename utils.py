@@ -1,6 +1,6 @@
 import re
 from typing import Literal, Union
-
+import zipfile
 
 from pathlib import Path
 import requests
@@ -14,8 +14,7 @@ def get_path(p) -> Path:
     return path
 
 
-def download(mode: Literal['dir', 'file'],
-             save_path: Union[str, Path],
+def download(mode: Literal['dir', 'file'], save_path: Union[str, Path],
              response: requests.Response) -> None:
     if isinstance(save_path, str):
         save_path = Path(save_path)
@@ -39,3 +38,8 @@ def download(mode: Literal['dir', 'file'],
     ) as f:
         for chunk in response.iter_content(1024):
             f.write(chunk)
+
+
+def unzip(zip_file: Union[str, Path]) -> None:
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extractall(zip_file.parent)

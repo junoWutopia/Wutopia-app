@@ -12,6 +12,11 @@ MDBoxLayout:
             on_release:
                 app.manager.current = 'download'
         MDNavigationRailItem:
+            text: "MyFiles"
+            icon: "folder"
+            on_release:
+                app.manager.current = 'my_files'
+        MDNavigationRailItem:
             text: "Edit"
             icon: "tune"
             on_release:
@@ -80,6 +85,10 @@ MDBoxLayout:
             font_size: 14
             pos_hint: {"x": 0.02}
             size_hint: 1, 0.2
+
+<MyFilesScreen>:
+
+
 
 <EditScreen>:
     MDLabel:
