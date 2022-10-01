@@ -30,6 +30,9 @@ class WutopiaApp(MDApp):
     # def on_stop(self):
     #     self.tmp.unlink()
 
+    def switch_screen(self, screen: str):
+        self.manager.current = screen
+
 
 if __name__ == '__main__':
     app = WutopiaApp()
