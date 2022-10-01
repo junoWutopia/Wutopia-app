@@ -73,6 +73,7 @@ class EditScreen(MDScreen):
         super(EditScreen, self).__init__(**kwargs)
         self.img = None
         self.current_resource = None
+
         self.adjustments = {
             'brightness': Adjustment('Brightness', 0, -100, 100),
             'contrast': Adjustment('Contrast', 0, -100, 100),
@@ -80,9 +81,10 @@ class EditScreen(MDScreen):
             'saturation': Adjustment('Saturation', 0, -100, 100),
             'lightness': Adjustment('Lightness', 0, -100, 100),
         }
-
         for adjustment in self.adjustments.values():
             self.ids.adjustments.add_widget(adjustment)
+
+        self.last_adjustment = (None, None, None, None, None)
 
     def on_enter(self, *args):
         for adjustment in self.adjustments.values():
@@ -115,6 +117,11 @@ class EditScreen(MDScreen):
             s *= 5
         if l > 0:
             l *= 3
+
+        this_adjustment = (brightness_factor, contrast_factor, h, s, l)
+        if this_adjustment == self.last_adjustment:
+            return
+        self.last_adjustment = this_adjustment
 
         adjusted = adjust_brightness(self.img, brightness_factor)
         adjusted = adjust_contrast(adjusted, contrast_factor)
