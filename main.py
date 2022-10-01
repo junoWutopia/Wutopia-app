@@ -33,6 +33,10 @@ class WutopiaApp(MDApp):
     def switch_screen(self, screen: str):
         self.manager.current = screen
 
+    def select_resource(self, resource_dir: Path):
+        self.manager.get_screen('edit').set_resource(resource_dir)
+        self.switch_screen('edit')
+
 
 if __name__ == '__main__':
     app = WutopiaApp()

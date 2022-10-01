@@ -8,14 +8,16 @@ from kivymd.uix.screen import MDScreen
 
 class ResourceItem(MDCard, RoundedRectangularElevationBehavior):
 
-    def __init__(self, image: Path, title: str, subtitle: str):
+    def __init__(self, preview_image: Path, title: str, subtitle: str):
         super(ResourceItem, self).__init__()
-        self.ids.image.source = str(image)
+        self.resource_dir = preview_image.parent
+        self.ids.image.source = str(preview_image)
         self.ids.title.text = title
         self.ids.subtitle.text = subtitle
 
 
 class MyFilesScreen(MDScreen):
+
     def __init__(self, **kwargs):
         super(MyFilesScreen, self).__init__(**kwargs)
         self.resources = set()

@@ -91,7 +91,7 @@ MDBoxLayout:
     radius: 12
     ripple_behavior: True
     elevation: 3
-    on_press: app.switch_screen('edit')
+    on_press: app.select_resource(self.resource_dir)
 
     FitImage:
         id: image
@@ -135,3 +135,52 @@ MDBoxLayout:
             adaptive_height: True
 
 <EditScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            # title: "MDTopAppBar"
+            left_action_items: [["arrow-left", lambda x: app.switch_screen('my_files'), "Back to My Files"]]
+
+        MDBoxLayout:
+            padding: dp(20)
+            spacing: dp(30)
+            Image:
+                id: image
+                # size_hint: None, None
+                # size: self.texture_size
+                # pos_hint: {'top': 0.1, 'left': 0.1}
+
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: dp(10)
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 0.2
+                    Line:
+                        width: dp(2)
+                        rectangle: self.x, self.y, self.width, self.height
+                MDBoxLayout:
+                    spacing: dp(5)
+                    MDIcon:
+                        icon: "tune"
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                    MDLabel:
+                        font_style: "H6"
+                        text: "Image adjustments"
+                MDLabel:
+                    text: "Brightness"
+                MDSlider:
+                    id: brightness_slider
+                    min: -100
+                    max: 100
+                    value: 0
+                    hint: True
+                    on_touch_up: root.pipeline()
+                MDLabel:
+                    text: "Contrast"
+                MDSlider:
+                    id: contrast_slider
+                    min: -100
+                    max: 100
+                    value: 0
+                    hint: True

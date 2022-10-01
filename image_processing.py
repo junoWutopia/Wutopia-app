@@ -2,10 +2,13 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from PIL import Image
+from PIL import ImageEnhance
+from scipy.interpolate import splprep, splev
 import skimage.exposure
 
 
-class PictureProcessor:
+class RGBCombiner:
 
     def __init__(self, image_dir: Path):
         self.image_dir = image_dir
@@ -39,3 +42,13 @@ class PictureProcessor:
             blur, in_range=(127.5, 255), out_range=(0, 255))
         cv2.imwrite(str(self.image_dir / 'RGB_combined.png'),
                     self.RGB_smooth_contour_pic)
+
+
+def adjust_brightness(img: Image, factor: float) -> Image:
+    enhancer = ImageEnhance.Brightness(img)
+    return enhancer.enhance(factor)
+
+
+def adjust_contrast(img: Image, factor: float) -> Image:
+    enhancer = ImageEnhance.Contrast(img)
+    return enhancer.enhance(factor)
