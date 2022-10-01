@@ -1,3 +1,4 @@
+import json
 import re
 import time
 import zipfile
@@ -9,9 +10,11 @@ from kivy.uix.image import Image
 from kivy.uix.screenmanager import NoTransition
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
+from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.button import MDRectangleFlatButton
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.fitimage import FitImage
 from kivymd.uix.label import MDLabel
@@ -49,7 +52,6 @@ class PreviewContent(MDBoxLayout):
         soup = BeautifulSoup(webpage.text, 'html.parser')
 
         lazy_img = soup.find('div', {'class': 'lazy_img'}).find('img')
-        print(lazy_img)
 
         file_path = f'data/{res_id}/preview.jpg'
         download('file', file_path, requests.get(lazy_img['src']))
@@ -97,7 +99,7 @@ class DownloadScreen(MDScreen):
 
     def check_resource(self):
         self.user_input = self.ids.text_field.text
-        print(self.user_input)
+        # print(self.user_input)
         pattern = re.compile('https:\/\/www.missionjuno.swri.edu\/junocam\/'
                              'processing\?id=(\d+)')
         match = pattern.match(self.user_input)
@@ -166,8 +168,26 @@ class DownloadScreen(MDScreen):
         dialog.dismiss()
 
 
+class ResourceItem(MDCard, RoundedRectangularElevationBehavior):
+    def __init__(self, image: Path, title: str, subtitle: str):
+        super(ResourceItem, self).__init__()
+        self.ids.image.source = str(image)
+        self.ids.title.text = title
+        self.ids.subtitle.text = subtitle
+
+
 class MyFilesScreen(MDScreen):
-    pass
+    def on_enter(self, *args):
+        for folder in Path('data').iterdir():
+            with open(folder / 'DataSet' / f'{folder.name}-Metadata.json', 'r')\
+                    as f:
+                metadata = json.load(f)
+            self.ids.content.add_widget(ResourceItem(folder / 'preview.jpg',
+                                                     metadata['TITLE'],
+                                                     metadata['PRODUCT_ID']))
+
+    def on_leave(self, *args):
+        self.ids.content.clear_widgets()
 
 
 class EditScreen(MDScreen):

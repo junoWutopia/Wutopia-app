@@ -12,15 +12,15 @@ MDBoxLayout:
             on_release:
                 app.manager.current = 'download'
         MDNavigationRailItem:
-            text: "MyFiles"
+            text: "My Files"
             icon: "folder"
             on_release:
                 app.manager.current = 'my_files'
-        MDNavigationRailItem:
-            text: "Edit"
-            icon: "tune"
-            on_release:
-                app.manager.current = 'edit'
+        # MDNavigationRailItem:
+        #     text: "Edit"
+        #     icon: "tune"
+        #     on_release:
+        #         app.manager.current = 'edit'
 
     ScreenManager:
         id: screen_manager
@@ -86,12 +86,53 @@ MDBoxLayout:
             pos_hint: {"x": 0.02}
             size_hint: 1, 0.2
 
+<ResourceItem>
+    size_hint_y: None
+    height: "86dp"
+    padding: "4dp"
+    radius: 12
+    ripple_behavior: True
+    elevation: 3
+
+    FitImage:
+        id: image
+        # source: None
+        radius: root.radius
+        size_hint_x: None
+        width: root.height
+
+    MDBoxLayout:
+        orientation: "vertical"
+        adaptive_height: True
+        spacing: "6dp"
+        padding: "12dp", 0, 0, 0
+        pos_hint: {"center_y": .5}
+
+        MDLabel:
+            id: title
+            # text: "Title text"
+            font_style: "H5"
+            bold: True
+            adaptive_height: True
+
+        MDLabel:
+            id: subtitle
+            # text: "Subtitle text"
+            theme_text_color: "Hint"
+            adaptive_height: True
+
 <MyFilesScreen>:
-
-
+    MDSliverAppbar:
+        background_color: "2d4f50"
+        max_height: Window.height / 3
+        MDSliverAppbarHeader:
+            FitImage:
+                source: "wutopia.png"
+        MDSliverAppbarContent:
+            id: content
+            orientation: "vertical"
+            padding: "12dp"
+            spacing: "12dp"
+            adaptive_height: True
 
 <EditScreen>:
-    MDLabel:
-        text: 'Edit Page'
-
-
