@@ -61,7 +61,7 @@ MDBoxLayout:
                 text: "Preview resource"
                 disabled: True
                 on_press:
-                    root.preview_resource()
+                    root.show_preview_dialog()
             MDRectangleFlatIconButton:
                 id: download_resource_btn
                 padding: dp(10), dp(10)
@@ -69,7 +69,7 @@ MDBoxLayout:
                 text: "Download resource"
                 disabled: True
                 on_press:
-                    root.download_resource()
+                    root.show_download_dialog()
         MDLabel:
             markup: True
             text:
