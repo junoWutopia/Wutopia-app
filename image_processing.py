@@ -44,6 +44,28 @@ class RGBCombiner:
                     self.RGB_smooth_contour_pic)
 
 
+def adjust_hsl(img: Image, hue: float, saturation: float,
+               lightness: float) -> Image:
+    f_img = np.array(img).astype(np.float32)  # RGB
+    f_img /= 255
+
+    hls_img = cv2.cvtColor(f_img, cv2.COLOR_RGB2HLS)
+
+    # Hue
+    hls_img[:, :, 0] += hue
+    hls_img[:, :, 0] = hls_img[:, :, 0] % 360
+    # Lightness
+    hls_img[:, :, 1] *= (1 + lightness / 100.0)
+    hls_img[:, :, 1][hls_img[:, :, 1] > 1] = 1
+    # Saturation
+    hls_img[:, :, 2] *= (1 + saturation / 100.0)
+    hls_img[:, :, 2][hls_img[:, :, 2] > 1] = 1
+
+    result_img = cv2.cvtColor(hls_img, cv2.COLOR_HLS2RGB)
+    result_img = ((result_img * 255).astype(np.uint8))
+    return Image.fromarray(result_img)
+
+
 def adjust_brightness(img: Image, factor: float) -> Image:
     enhancer = ImageEnhance.Brightness(img)
     return enhancer.enhance(factor)
@@ -52,3 +74,9 @@ def adjust_brightness(img: Image, factor: float) -> Image:
 def adjust_contrast(img: Image, factor: float) -> Image:
     enhancer = ImageEnhance.Contrast(img)
     return enhancer.enhance(factor)
+
+
+if __name__ == '__main__':
+    img = Image.open('wutopia.png')
+    img = adjust_hsl(img, 0, 100, 0)
+    img.show()

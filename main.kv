@@ -153,12 +153,14 @@ MDBoxLayout:
             MDBoxLayout:
                 orientation: "vertical"
                 padding: dp(10)
+                on_touch_up: root.pipeline()
                 canvas.before:
                     Color:
                         rgba: 0, 0, 0, 0.2
                     Line:
                         width: dp(2)
                         rectangle: self.x, self.y, self.width, self.height
+
                 MDBoxLayout:
                     spacing: dp(5)
                     MDIcon:
@@ -175,7 +177,6 @@ MDBoxLayout:
                     max: 100
                     value: 0
                     hint: True
-                    on_touch_up: root.pipeline()
                 MDLabel:
                     text: "Contrast"
                 MDSlider:
@@ -184,3 +185,31 @@ MDBoxLayout:
                     max: 100
                     value: 0
                     hint: True
+                MDLabel:
+                    text: "Hue"
+                MDSlider:
+                    id: hue_slider
+                    min: -180
+                    max: 180
+                    value: 0
+                    hint: True
+                MDLabel:
+                    text: "Saturation"
+                MDSlider:
+                    id: saturation_slider
+                    min: -100
+                    max: 100
+                    value: 0
+                    hint: True
+                MDLabel:
+                    text: "Lightness"
+                MDSlider:
+                    id: lightness_slider
+                    min: -100
+                    max: 100
+                    value: 0
+                    hint: True
+                MDLabel:
+                    id: note
+                    text: "Note: The saturation of these images has already been cranked up in the default post-processing pipeline, so increasing the saturation in this panel may not produce significant visual changes. Feel free to try to decrease the saturation instead."
+                    font_style: "Caption"

@@ -16,6 +16,9 @@ class EditScreen(MDScreen):
     def on_enter(self, *args):
         self.ids.brightness_slider.value = 0
         self.ids.contrast_slider.value = 0
+        self.ids.hue_slider.value = 0
+        self.ids.saturation_slider.value = 0
+        self.ids.lightness_slider.value = 0
 
     def set_resource(self, resource_dir: Union[str, Path]):
         self.current_resource = resource_dir / 'ImageSet'
@@ -36,9 +39,17 @@ class EditScreen(MDScreen):
         brightness_factor = self.normalize(self.ids.brightness_slider.value)
         contrast_factor = self.normalize(self.ids.contrast_slider.value)
 
+        h = self.ids.hue_slider.value
+        s = self.ids.saturation_slider.value
+        l = self.ids.lightness_slider.value
+        if s > 0:
+            s *= 5
+        if l > 0:
+            l *= 3
+
         adjusted = adjust_brightness(self.img, brightness_factor)
         adjusted = adjust_contrast(adjusted, contrast_factor)
+        adjusted = adjust_hsl(adjusted, h, s, l)
 
         adjusted.save(self.ids.image.source)
-
         self.ids.image.reload()
