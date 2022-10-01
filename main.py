@@ -51,7 +51,7 @@ class PreviewContent(MDBoxLayout):
         lazy_img = soup.find('div', {'class': 'lazy_img'}).find('img')
         print(lazy_img)
 
-        file_path = f'tmp/{res_id}_preview.jpg'
+        file_path = f'data/{res_id}/preview.jpg'
         download('file', file_path, requests.get(lazy_img['src']))
         self.label.text = ''
         self.add_widget(Image(source=file_path, size_hint_y=None))
@@ -151,6 +151,10 @@ class DownloadScreen(MDScreen):
         })
 
         save_dir = Path('data') / self.res_id
+
+        if not (save_dir / 'preview.jpg').exists():
+            PreviewContent().download_preview(self.user_input, self.res_id)
+
         for zip_tag in processing.find_all('a', {'class': 'marR download_zip'}):
             dl_url = DOMAIN + zip_tag['href']
             download('dir', save_dir, requests.get(dl_url, stream=True))
@@ -184,8 +188,8 @@ class WutopiaApp(MDApp):
         self.manager.add_widget(EditScreen(name='edit'))
         self.manager.transition = NoTransition()
 
-        self.data = get_path('./data')
-        self.tmp = get_path('./tmp')
+        # self.data = get_path('./data')
+        # self.tmp = get_path('./tmp')
 
     # def on_stop(self):
     #     self.tmp.unlink()
