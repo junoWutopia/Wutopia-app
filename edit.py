@@ -1,9 +1,70 @@
 import shutil
 from typing import Union
 
+from kivy.metrics import dp
+from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.slider import MDSlider
+from kivymd.uix.textfield import MDTextField
 
 from image_processing import *
+
+
+class Adjustment(MDBoxLayout):
+
+    def __init__(self,
+                 name: str,
+                 value: int = 0,
+                 min: int = -100,
+                 max: int = 100,
+                 **kwargs):
+        super(Adjustment, self).__init__(**kwargs)
+        self.orientation = 'vertical'
+        self.spacing = dp(2)
+
+        self.name = name
+        self.value = value
+        self.label = MDLabel(text=name)
+        self.min = min
+        self.max = max
+
+        self.text_field = MDTextField(
+            text=str(value),
+            helper_text=f'Please enter a valid number between {min} and {max}',
+            helper_text_mode='on_error',
+            on_text_validate=self.update_value_from_text_field,
+            size_hint_x=0.3)
+
+        self.slider = MDSlider(value=value,
+                               min=min,
+                               max=max,
+                               hint=True,
+                               show_off=True)
+        self.slider.bind(value=self.update_value_from_slider)
+
+        self.add_widget(self.label)
+        self.add_widget(MDBoxLayout(self.text_field, self.slider))
+
+    def on_touch_up(self, touch):
+        MDApp.get_running_app().edit_pipeline_callback()
+
+    def update_value_from_slider(self, instance, value):
+        self.value = self.slider.value
+        self.text_field.text = f'{self.value:.0f}'
+
+    def update_value_from_text_field(self, instance):
+        try:
+            value = float(self.text_field.text)
+            if value < self.min or value > self.max:  # Out of range
+                self.text_field.error = True
+            else:
+                self.value = value
+                self.slider.value = self.value
+                MDApp.get_running_app().edit_pipeline_callback()
+        except ValueError:  # Error in conversion
+            self.text_field.error = True
 
 
 class EditScreen(MDScreen):
@@ -12,13 +73,21 @@ class EditScreen(MDScreen):
         super(EditScreen, self).__init__(**kwargs)
         self.img = None
         self.current_resource = None
+        self.adjustments = {
+            'brightness': Adjustment('Brightness', 0, -100, 100),
+            'contrast': Adjustment('Contrast', 0, -100, 100),
+            'hue': Adjustment('Hue', 0, -180, 180),
+            'saturation': Adjustment('Saturation', 0, -100, 100),
+            'lightness': Adjustment('Lightness', 0, -100, 100),
+        }
+
+        for adjustment in self.adjustments.values():
+            self.ids.adjustments.add_widget(adjustment)
 
     def on_enter(self, *args):
-        self.ids.brightness_slider.value = 0
-        self.ids.contrast_slider.value = 0
-        self.ids.hue_slider.value = 0
-        self.ids.saturation_slider.value = 0
-        self.ids.lightness_slider.value = 0
+        for adjustment in self.adjustments.values():
+            adjustment.slider.value = 0
+            adjustment.text_field.text = '0'
 
     def set_resource(self, resource_dir: Union[str, Path]):
         self.current_resource = resource_dir / 'ImageSet'
@@ -36,12 +105,12 @@ class EditScreen(MDScreen):
             return 1.0 + slider_value / 200.0
 
     def pipeline(self):
-        brightness_factor = self.normalize(self.ids.brightness_slider.value)
-        contrast_factor = self.normalize(self.ids.contrast_slider.value)
+        brightness_factor = self.normalize(self.adjustments['brightness'].value)
+        contrast_factor = self.normalize(self.adjustments['contrast'].value)
 
-        h = self.ids.hue_slider.value
-        s = self.ids.saturation_slider.value
-        l = self.ids.lightness_slider.value
+        h = self.adjustments['hue'].value
+        s = self.adjustments['saturation'].value
+        l = self.adjustments['lightness'].value
         if s > 0:
             s *= 5
         if l > 0:

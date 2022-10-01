@@ -37,6 +37,9 @@ class WutopiaApp(MDApp):
         self.manager.get_screen('edit').set_resource(resource_dir)
         self.switch_screen('edit')
 
+    def edit_pipeline_callback(self):
+        self.manager.get_screen('edit').pipeline()
+
 
 if __name__ == '__main__':
     app = WutopiaApp()
