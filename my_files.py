@@ -16,15 +16,17 @@ class ResourceItem(MDCard, RoundedRectangularElevationBehavior):
 
 
 class MyFilesScreen(MDScreen):
+    def __init__(self, **kwargs):
+        super(MyFilesScreen, self).__init__(**kwargs)
+        self.resources = set()
 
     def on_enter(self, *args):
         for folder in Path('data').iterdir():
-            with open(folder / 'DataSet' / f'{folder.name}-Metadata.json', 'r')\
-                    as f:
-                metadata = json.load(f)
-            self.ids.content.add_widget(
-                ResourceItem(folder / 'preview.jpg', metadata['TITLE'],
-                             metadata['PRODUCT_ID']))
-
-    def on_leave(self, *args):
-        self.ids.content.clear_widgets()
+            if folder.name not in self.resources:
+                self.resources.add(folder.name)
+                with open(folder / 'DataSet' / f'{folder.name}-Metadata.json',
+                          'r') as f:
+                    metadata = json.load(f)
+                self.ids.content.add_widget(
+                    ResourceItem(folder / 'preview.jpg', metadata['TITLE'],
+                                 metadata['PRODUCT_ID']))
