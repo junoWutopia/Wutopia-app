@@ -172,12 +172,12 @@ class WutopiaApp(MDApp):
                         on_release=copy_to_clipboard_bind),
                     MDRectangleFlatIconButton(
                         icon='facebook',
-                        text='Share to facebook',
+                        text='Share to Facebook',
                         on_release=share_to_facebook_bind,
                     ),
                     MDRectangleFlatIconButton(
                         icon='twitter',
-                        text='Share to twitter',
+                        text='Share to Twitter',
                         on_release=share_to_twitter_bind,
                     ),
                     spacing=dp(10),
