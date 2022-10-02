@@ -171,7 +171,7 @@ MDBoxLayout:
         MDTopAppBar:
             # title: "MDTopAppBar"
             left_action_items: [["arrow-left", lambda x: app.switch_screen('my_files'), "Back to My Files"]]
-            right_action_items: [["content-save", lambda x: x, "Save"],["share", lambda x: x, "Share"]]
+            right_action_items: [["content-save", lambda x: app.save_dialog(), "Save"],["share", lambda x: x, "Share"]]
 
         MDBoxLayout:
             MDBoxLayout:

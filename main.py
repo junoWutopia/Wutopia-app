@@ -1,18 +1,35 @@
+import os
+import shutil
+
 from kivy.lang import Builder
 from kivy.uix.screenmanager import NoTransition
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.filemanager import MDFileManager
+from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.textfield import MDTextField
 from PIL import Image
 
 from download import DownloadScreen
 from edit import EditScreen
 from home import HomeScreen
 from my_files import MyFilesScreen
-from alternative_choose import AlternativeChooser
 from utils import *
 
 
 class WutopiaApp(MDApp):
+
+    def __init__(self, **kwargs):
+        super(WutopiaApp, self).__init__()
+        self.text_field = None
+        self.file_manager = MDFileManager(search='dirs',
+                                          selector='folder',
+                                          exit_manager=self.exit_manager,
+                                          select_path=self.select_path)
+        self.dialog = None
+        self.save_path = None
 
     def build(self):
         self.theme_cls.primary_palette = 'Teal'
@@ -46,6 +63,52 @@ class WutopiaApp(MDApp):
         edit_screen = self.manager.get_screen('edit')
         img.save(edit_screen.ids.image.source)
         edit_screen.ids.image.reload()
+
+    def save_dialog(self):
+        self.file_manager_open()
+
+    def file_manager_open(self):
+        self.file_manager.show(os.path.expanduser('~'))
+
+    def cancel_btn_bind(self, *args):
+        self.dialog.dismiss()
+        self.exit_manager()
+
+    def ok_btn_bind(self, *args):
+        shutil.copy2(
+            self.manager.get_screen('edit').current_resource /
+            'RGB_combined_adjusted.png', self.save_path / self.text_field.text)
+        Snackbar(text='Successfully saved to '
+                 f'{self.save_path / self.text_field.text}').open()
+        self.cancel_btn_bind()
+
+    def select_path(self, path: str):
+        self.save_path = Path(path)
+        cancel_btn = MDFlatButton(
+            text="CANCEL",
+            theme_text_color="Custom",
+            text_color=self.theme_cls.primary_color,
+        )
+        ok_btn = MDFlatButton(
+            text="OK",
+            theme_text_color="Custom",
+            text_color=self.theme_cls.primary_color,
+        )
+        self.text_field = MDTextField(
+            hint_text='File name (please end with the .png extension)',
+            helper_text='Example: my_awesome_image.png')
+        self.dialog = MDDialog(
+            title='Save image',
+            type='custom',
+            content_cls=self.text_field,
+            buttons=[cancel_btn, ok_btn],
+        )
+        cancel_btn.bind(on_press=self.cancel_btn_bind)
+        ok_btn.bind(on_press=self.ok_btn_bind)
+        self.dialog.open()
+
+    def exit_manager(self, *args):
+        self.file_manager.close()
 
 
 if __name__ == '__main__':
