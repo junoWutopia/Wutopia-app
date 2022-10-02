@@ -44,6 +44,7 @@ class WutopiaApp(MDApp):
 
     def build(self):
         self.theme_cls.primary_palette = 'Teal'
+        get_path('data/')
         return Builder.load_file('main.kv')
 
     def on_start(self):
