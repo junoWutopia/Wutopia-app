@@ -7,6 +7,7 @@ from download import DownloadScreen
 from edit import EditScreen
 from home import HomeScreen
 from my_files import MyFilesScreen
+from alternative_choose import AlternativeChooser
 from utils import *
 
 
