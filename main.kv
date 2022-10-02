@@ -136,39 +136,49 @@ MDBoxLayout:
             spacing: "12dp"
             adaptive_height: True
 
+<BasicAdjustmentsTab>:
+    icon: "tune"
+    title: "Basic adjustments"
+
+    MDBoxLayout:
+        id: adjustments_box
+        orientation: "vertical"
+        padding: dp(10)
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0.2
+            Line:
+                width: dp(2)
+                rectangle: self.x, self.y, self.width, self.height
+
+        MDBoxLayout:
+            spacing: dp(5)
+            MDIcon:
+                icon: "tune"
+                pos_hint: {"center_x": .5, "center_y": .5}
+            MDLabel:
+                font_style: "H6"
+                text: "Basic adjustments"
+        MDLabel:
+            id: note
+            text: "Note: The saturation of these images has already been cranked up in the default post-processing pipeline, so increasing the saturation in this panel may not produce significant visual changes. Feel free to try to decrease the saturation instead."
+            font_style: "Caption"
+
+
 <EditScreen>:
     MDBoxLayout:
         orientation: "vertical"
         MDTopAppBar:
             # title: "MDTopAppBar"
             left_action_items: [["arrow-left", lambda x: app.switch_screen('my_files'), "Back to My Files"]]
+            right_action_items: [["content-save", lambda x: x, "Save"],["share", lambda x: x, "Share"]]
 
         MDBoxLayout:
-            padding: dp(20)
-            spacing: dp(20)
-            Image:
-                id: image
-
             MDBoxLayout:
-                id: adjustments
-                orientation: "vertical"
-                padding: dp(10)
-                canvas.before:
-                    Color:
-                        rgba: 0, 0, 0, 0.2
-                    Line:
-                        width: dp(2)
-                        rectangle: self.x, self.y, self.width, self.height
-
-                MDBoxLayout:
-                    spacing: dp(5)
-                    MDIcon:
-                        icon: "tune"
-                        pos_hint: {"center_x": .5, "center_y": .5}
-                    MDLabel:
-                        font_style: "H6"
-                        text: "Image adjustments"
-                MDLabel:
-                    id: note
-                    text: "Note: The saturation of these images has already been cranked up in the default post-processing pipeline, so increasing the saturation in this panel may not produce significant visual changes. Feel free to try to decrease the saturation instead."
-                    font_style: "Caption"
+                padding: dp(20)
+                Image:
+                    id: image
+            MDTabs:
+                lock_swiping: True
+                BasicAdjustmentsTab:
+                    id: basic_adjustments_tab

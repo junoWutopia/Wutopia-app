@@ -2,6 +2,7 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import NoTransition
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
+from PIL import Image
 
 from download import DownloadScreen
 from edit import EditScreen
@@ -38,8 +39,13 @@ class WutopiaApp(MDApp):
         self.manager.get_screen('edit').set_resource(resource_dir)
         self.switch_screen('edit')
 
-    def edit_pipeline_callback(self):
-        self.manager.get_screen('edit').pipeline()
+    def basic_adjustments_pipeline_callback(self):
+        self.manager.get_screen('edit').ids.basic_adjustments_tab.pipeline()
+
+    def save_image_callback(self, img: Image):
+        edit_screen = self.manager.get_screen('edit')
+        img.save(edit_screen.ids.image.source)
+        edit_screen.ids.image.reload()
 
 
 if __name__ == '__main__':

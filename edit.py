@@ -4,9 +4,11 @@ from typing import Union
 from kivy.metrics import dp
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.slider import MDSlider
+from kivymd.uix.tab import MDTabsBase
 from kivymd.uix.textfield import MDTextField
 
 from image_processing import *
@@ -50,7 +52,7 @@ class Adjustment(MDBoxLayout):
     def on_touch_up(self, touch):
         self.value = self.slider.value
         self.text_field.text = f'{self.value:.0f}'
-        MDApp.get_running_app().edit_pipeline_callback()
+        MDApp.get_running_app().basic_adjustments_pipeline_callback()
 
     def update_value_from_text_field(self, *args):
         try:
@@ -60,17 +62,15 @@ class Adjustment(MDBoxLayout):
             else:
                 self.value = value
                 self.slider.value = self.value
-                MDApp.get_running_app().edit_pipeline_callback()
+                MDApp.get_running_app().basic_adjustments_pipeline_callback()
         except ValueError:  # Error in conversion
             self.text_field.error = True
 
 
-class EditScreen(MDScreen):
+class BasicAdjustmentsTab(MDFloatLayout, MDTabsBase):
 
     def __init__(self, **kwargs):
-        super(EditScreen, self).__init__(**kwargs)
-        self.img = None
-        self.current_resource = None
+        super(BasicAdjustmentsTab, self).__init__(**kwargs)
 
         self.adjustments = {
             'brightness': Adjustment('Brightness', 0, -100, 100),
@@ -79,23 +79,19 @@ class EditScreen(MDScreen):
             'saturation': Adjustment('Saturation', 0, -100, 100),
             'lightness': Adjustment('Lightness', 0, -100, 100),
         }
-        for adjustment in self.adjustments.values():
-            self.ids.adjustments.add_widget(adjustment)
 
+        self.initialized = False
         self.last_adjustment = (None, None, None, None, None)
 
-    def on_enter(self, *args):
+    def on_enter(self):
+        if not self.initialized:
+            for adjustment in self.adjustments.values():
+                self.ids.adjustments_box.add_widget(adjustment)
+            self.initialized = True
+
         for adjustment in self.adjustments.values():
             adjustment.slider.value = 0
             adjustment.text_field.text = '0'
-
-    def set_resource(self, resource_dir: Union[str, Path]):
-        self.current_resource = resource_dir / 'ImageSet'
-        RGBCombiner(self.current_resource)
-        adjusted_path = self.current_resource / 'RGB_combined_adjusted.png'
-        shutil.copy2(self.current_resource / 'RGB_combined.png', adjusted_path)
-        self.img = Image.open(adjusted_path)
-        self.ids.image.source = str(adjusted_path)
 
     @staticmethod
     def normalize(slider_value: float) -> float:
@@ -121,9 +117,28 @@ class EditScreen(MDScreen):
             return
         self.last_adjustment = this_adjustment
 
-        adjusted = adjust_brightness(self.img, brightness_factor)
+        adjusted = MDApp.get_running_app().manager.get_screen('edit').img
+        adjusted = adjust_brightness(adjusted, brightness_factor)
         adjusted = adjust_contrast(adjusted, contrast_factor)
         adjusted = adjust_hsl(adjusted, h, s, l)
 
-        adjusted.save(self.ids.image.source)
-        self.ids.image.reload()
+        MDApp.get_running_app().save_image_callback(adjusted)
+
+
+class EditScreen(MDScreen):
+
+    def __init__(self, **kwargs):
+        super(EditScreen, self).__init__(**kwargs)
+        self.img = None
+        self.current_resource = None
+
+    def on_enter(self, *args):
+        self.ids.basic_adjustments_tab.on_enter()
+
+    def set_resource(self, resource_dir: Union[str, Path]):
+        self.current_resource = resource_dir / 'ImageSet'
+        RGBCombiner(self.current_resource)
+        adjusted_path = self.current_resource / 'RGB_combined_adjusted.png'
+        shutil.copy2(self.current_resource / 'RGB_combined.png', adjusted_path)
+        self.img = Image.open(adjusted_path)
+        self.ids.image.source = str(adjusted_path)
