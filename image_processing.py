@@ -56,25 +56,40 @@ class RGBCombiner:
             blur, in_range=(127.5, 255), out_range=(0, 255))
         cv2.imwrite(str(self.image_dir / 'RGB_combined.png'),
                     self.RGB_smooth_contour_pic)
-        self.R: float = 0.85
-        self.MaxDeg: int = 10
 
-    #def Magnetic_field(self, extshell_rad: float, layer: int):
-    #    #domian: extshell:0-2 float
-    #    #        layer: 1-10 int
-    #    jrm09run.map2d(self.R, self.MaxDeg)
-    #    jrm09run.vecfld(extshell_rad, layer, self.MaxDeg)
-    #    jrm33run.map2d(self.R, self.MaxDeg)
-    #    jrm33run.vecfld(extshell_rad, layer, self.MaxDeg)
-    #   theory3d1976.vecfld1976(extshell_rad, layer, MaxDeg)
 
-    #def ball_present(self):
-    #    with open(self.METADATA, 'rb') as json_file:
-    #        im_info_dir = json.load(json_file)
-    #    image = self.RAW
-    #    img = Image.open(image)
-    #    im_ar = np.array(img)
-    #    im_ar = remove_bad_pixels(im_ar)
+#def Magnetic_field(img_dir: Path, extshell_rad: float, layer: int):
+#    r: float = 0.85
+#    rmaxdeg: int = 10
+#    #domian: extshell:0-2 float
+#    #        layer: 1-10 int
+#    jrm09run.map2d(r, rmaxdeg)
+#    jrm09run.vecfld(extshell_rad, layer, rmaxdeg)
+#    jrm33run.map2d(r, self.MaxDeg)
+#    jrm33run.vecfld(extshell_rad, layer, rmaxdeg)
+#   #theory3d1976.vecfld1976(extshell_rad, layer, rmaxdeg)
+
+#the Data Have already choosed
+def Magnetic_field( extshell_rad: float, layer: int):
+    r: float = 0.85
+    rmaxdeg: int = 10
+    #domian: extshell:0-2 float
+    #        layer: 1-10 int
+    jrm09run.map2d(r, rmaxdeg)
+    jrm09run.vecfld(extshell_rad, layer, rmaxdeg)
+    jrm33run.map2d(r, rmaxdeg)
+    jrm33run.vecfld(extshell_rad, layer, rmaxdeg)
+    #theory3d1976.vecfld1976(extshell_rad, layer, MaxDeg)
+
+
+#we can not find the reason why there is some error when import spicedata
+#def ball_present(self):
+#    with open(self.METADATA, 'rb') as json_file:
+#        im_info_dir = json.load(json_file)
+#    image = self.RAW
+#    img = Image.open(image)
+#    im_ar = np.array(img)
+#    im_ar = remove_bad_pixels(im_ar)
 #
 #    s1, s2 = im_ar.shape
 #

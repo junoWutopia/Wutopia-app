@@ -76,10 +76,10 @@ class WutopiaApp(MDApp):
         self.manager.get_screen('edit').set_resource(resource_dir)
         self.switch_screen('edit')
 
-
-    def select_resource_module(self, resource_dir: Path):
-        module_ddd.Module3D.is_start_generate = True
-        module_ddd.Module3D.generate_3d_dir = resource_dir
+    # check if data is chosen
+    #def select_resource_module(self, resource_dir: Path):
+    #    module_ddd.Module3D.is_start_generate = True
+    #    module_ddd.Module3D.generate_3d_dir = resource_dir
 
 
     def basic_adjustments_pipeline_callback(self):

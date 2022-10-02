@@ -56,5 +56,6 @@ class Module3D(MDScreen):
     generate_3d_dir = ''
 
     def start_generate(self):
-        if self.is_start_generate:
-            Magnetic_field(self.generate_3d_dir, self.ids.external_shell.value, int(self.ids.layers.value))
+        Magnetic_field(self.ids.external_shell.value, int(self.ids.layers.value))
+#        if self.is_start_generate:
+#          Magnetic_field(self.generate_3d_dir, self.ids.external_shell.value, int(self.ids.layers.value))
