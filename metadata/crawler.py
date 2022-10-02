@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--outfile_dir', type=str, default='downloaded/')
     parser.add_argument('--outfile_prefix', type=str, default='id_to_metadata')
     parser.add_argument('--min', type=int, default=1)
-    parser.add_argument('--max', type=int, default=13927)
+    parser.add_argument('--max', type=int, default=13990)
     args = parser.parse_args()
 
     s = requests.Session()
