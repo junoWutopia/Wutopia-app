@@ -24,7 +24,7 @@ class PreviewDialogContent(MDBoxLayout):
         self.orientation = 'vertical'
         self.size_hint_y = None
         self.label = MDLabel(text='Please wait while the preview image is '
-                             'begin downloaded...',
+                             'being downloaded...',
                              halign="center")
         # self.spinner = MDSpinner(active=True,
         #                          size=(dp(50), dp(50)),
@@ -71,6 +71,10 @@ class DownloadScreen(MDScreen):
     def __init__(self, **kwargs):
         super(DownloadScreen, self).__init__(**kwargs)
         self.resource_id = None
+        self.resource_title = None
+
+        with open('metadata/id_to_metadata.json', 'r', encoding='utf-8') as f:
+            self.id_to_metadata = json.load(f)
 
         with open('metadata/title_to_id.json', 'r', encoding='utf-8') as f:
             self.title_to_id = json.load(f)
@@ -85,6 +89,8 @@ class DownloadScreen(MDScreen):
 
     def update_status(self, valid: bool, error_message: str = 'Invalid input'):
         if valid:
+            self.resource_title = self.id_to_metadata[str(
+                self.resource_id)]['title']
             self.ids.text_field.error = False
             self.ids.preview_resource_btn.disabled = False
             self.ids.download_resource_btn.disabled = False
@@ -122,7 +128,7 @@ class DownloadScreen(MDScreen):
     def show_preview_dialog(self):
         content = PreviewDialogContent()
         ok_btn = MDFlatButton(text='OK')
-        dialog = MDDialog(title='Preview',
+        dialog = MDDialog(title=f'Previewing {self.resource_title}',
                           type='custom',
                           content_cls=content,
                           buttons=[ok_btn],
@@ -136,7 +142,7 @@ class DownloadScreen(MDScreen):
 
     def show_download_dialog(self):
         content = DownloadDialogContent()
-        dialog = MDDialog(title=f'Downloading...',
+        dialog = MDDialog(title=f'Downloading {self.resource_title}',
                           type='custom',
                           content_cls=content,
                           on_open=self.download_resource,
