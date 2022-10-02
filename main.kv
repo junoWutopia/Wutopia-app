@@ -36,13 +36,6 @@ MDBoxLayout:
             id: content
             orientation: "vertical"
             padding: dp(30)
-
-            MDRectangleFlatIconButton:
-                padding: dp(10), dp(10)
-                icon: "web"
-                text: "Open NASA's image processing gallery"
-                on_press:
-                    app.open_in_browser('https://www.missionjuno.swri.edu/junocam/processing')
             MDLabel:
                 text: "Please enter the url, name (case-insensitive), or product id of image"
                 font_size: 20
@@ -212,5 +205,104 @@ MDBoxLayout:
                 lock_swiping: True
                 BasicAdjustmentsTab:
                     id: basic_adjustments_tab
-                FiltersTab:
-                    id: filters_tab
+<Module3DItem>
+    size_hint_y: None
+    height: "86dp"
+    padding: "4dp"
+    radius: 12
+    ripple_behavior: True
+    elevation: 3
+    on_press: app.select_resource_module(self.resource_dir)
+
+    FitImage:
+        id: module_image
+        # source: None
+        radius: root.radius
+        size_hint_x: None
+        width: root.height
+
+    MDBoxLayout:
+        orientation: "vertical"
+        adaptive_height: True
+        spacing: "6dp"
+        padding: "12dp", 0, 0, 0
+        pos_hint: {"center_y": .5}
+
+        MDLabel:
+            id: module_title
+            # text: "Title text"
+            font_style: "H5"
+            bold: True
+            adaptive_height: True
+
+        MDLabel:
+            id: module_subtitle
+            # text: "Subtitle text"
+            theme_text_color: "Hint"
+            adaptive_height: True
+
+<Module3D>:
+    MDBoxLayout:
+        MDSliverAppbar:
+            background_color: "00004d"
+            max_width: Window.width *0.3
+            height: Window.height
+            MDSliverAppbarHeader:
+                MDBoxLayout:
+
+                    MDLabel:
+                        font_style: 'H4'
+                        text: 'Choose Your File'
+            MDSliverAppbarContent:
+                id: module_content
+                orientation: "vertical"
+                padding: "12dp"
+                spacing: "12dp"
+                adaptive_height: True
+        MDBoxLayout:
+            size_hint_x: None
+            width: dp(300)
+            orientation: 'vertical'
+            md_bg_color: 0, 0, 0, 0.6
+            spacing:dp(10)
+
+
+            MDLabel:
+                opposite_colors: True
+                size_hint: 0.9,0.3
+                pos_hint: {"center_x": .5, "y":0.1}
+                text: 'Index of Magnetic 3D Module'
+                font_size: dp(20)
+            MDLabel:
+                opposite_colors: True
+                size_hint: 0.9,0.3
+                font_style: 'Subtitle1'
+                pos_hint: {"x": .1, "y":0.3}
+                text: 'External shell(s)'
+            MDSlider:
+                size_hint: 1,0.3
+                max: 2
+                min: 0
+                pos_hint: {"x": .01, "y":0.3}
+                hint: True
+                id: external_shell
+            MDLabel:
+                opposite_colors: True
+                size_hint: .9,0.3
+                pos_hint: {"x": .1, "y":0.3}
+                font_style: 'Subtitle1'
+                text: 'Layers'
+            MDSlider:
+                size_hint: 1,0.3
+                max: 10
+                min: 1
+                pos_hint: {"x": .01, "y":0.3}
+                hint: True
+                id: layers
+            MDFlatButton:
+                opposite_colors: True
+                size_hint: 1,2
+                pos_hint: {"center_x": .5 ,"center_y": .5 }
+                text: 'Start 3D Module'
+                font_style: 'H5'
+                on_release: root.start_generate()

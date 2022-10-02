@@ -21,6 +21,9 @@ from kivymd.uix.stacklayout import MDStackLayout
 from kivymd.uix.textfield import MDTextField
 from PIL import Image
 
+import image_processing
+import module_ddd
+from module_ddd import Module3D
 from download import DownloadScreen
 from edit import EditScreen
 from home import HomeScreen
@@ -53,6 +56,7 @@ class WutopiaApp(MDApp):
         self.manager.add_widget(DownloadScreen(name='download'))
         self.manager.add_widget(MyFilesScreen(name='my_files'))
         self.manager.add_widget(EditScreen(name='edit'))
+        self.manager.add_widget(Module3D(name='module_ddd'))
         self.manager.transition = NoTransition()
 
         # self.data = get_path('./data')
@@ -71,6 +75,12 @@ class WutopiaApp(MDApp):
     def select_resource(self, resource_dir: Path):
         self.manager.get_screen('edit').set_resource(resource_dir)
         self.switch_screen('edit')
+
+
+    def select_resource_module(self, resource_dir: Path):
+        module_ddd.Module3D.is_start_generate = True
+        module_ddd.Module3D.generate_3d_dir = resource_dir
+
 
     def basic_adjustments_pipeline_callback(self):
         self.manager.get_screen('edit').ids.basic_adjustments_tab.pipeline()
