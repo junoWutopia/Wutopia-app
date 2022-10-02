@@ -37,13 +37,13 @@ MDBoxLayout:
             orientation: "vertical"
             padding: dp(30)
             MDLabel:
-                text: "Please enter image name or link below"
+                text: "Please enter the url, name (case-insensitive), or product id of image"
                 font_size: 20
                 size_hint: 1, 0.1
             MDTextField:
                 # padding: dp(15), dp(15)
                 id: text_field
-                hint_text: "Image name or url"
+                hint_text: "Image url, name (case-insensitive), or product id"
                 size_hint: 0.8, None
                 width: dp(10)
                 # required: True
@@ -51,7 +51,6 @@ MDBoxLayout:
                 font_size: 14
                 on_focus: root.check_resource()
                 on_text_validate: root.check_resource()
-                helper_text: "Not a valid resource name or url"
                 helper_text_mode: "on_error"
             MDBoxLayout:
                 id: btn_box
@@ -77,10 +76,13 @@ MDBoxLayout:
             MDLabel:
                 markup: True
                 text:
-                    ("Example:\n"
-                    "(name) JUPITER PJ44 SOUTH TEMPERATE BELT\n"
+                    ("Examples:\n"
                     "(url) https://www.missionjuno.swri.edu/junocam/"
-                    "[color=#f00]processing?id=[/color]13796")
+                    "[color=#f00]processing?id=[/color]13796\n"
+                    "(name) JUPITER PJ44 SOUTH TEMPERATE BELT\n"
+                    "(name) PJ45 Folded Filametary Region\n"
+                    "(product id) JNCE_2022272_45C00071_V01")
+                font_name: "Consola"
                 font_size: 14
                 size_hint: 1, 0.2
 

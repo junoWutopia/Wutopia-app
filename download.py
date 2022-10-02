@@ -1,3 +1,5 @@
+import json
+
 from bs4 import BeautifulSoup
 from kivy.uix.image import Image
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -12,6 +14,7 @@ import requests
 from utils import *
 
 DOMAIN = 'https://www.missionjuno.swri.edu'
+RESOURCE_URL_PREFIX = f'{DOMAIN}/junocam/processing?id='
 
 
 class PreviewDialogContent(MDBoxLayout):
@@ -31,13 +34,13 @@ class PreviewDialogContent(MDBoxLayout):
         self.add_widget(self.label)
         # self.add_widget(self.spinner)
 
-    def download_preview(self, res_url: str, res_id: int):
-        webpage = requests.get(res_url)
+    def download_preview(self, resource_id: int):
+        webpage = requests.get(f'{RESOURCE_URL_PREFIX}{resource_id}')
         soup = BeautifulSoup(webpage.text, 'html.parser')
 
         lazy_img = soup.find('div', {'class': 'lazy_img'}).find('img')
 
-        file_path = f'data/{res_id}/preview.jpg'
+        file_path = f'data/{resource_id}/preview.jpg'
         download('file', file_path, requests.get(lazy_img['src']))
         self.label.text = ''
         self.add_widget(Image(source=file_path, size_hint_y=None))
@@ -67,33 +70,54 @@ class DownloadScreen(MDScreen):
 
     def __init__(self, **kwargs):
         super(DownloadScreen, self).__init__(**kwargs)
-        self.user_input = None
-        self.res_id = None
-        # print(self.ids.text_field)
-        # self.ids.text_field.bind(
-        #     on_text_validate=self.check_resource,
-        #     on_focus=self.check_resource,
-        # )
-        # self.browser_layout = self.ids.browser_layout
-        # self.add_widget(self.browser_layout)
+        self.resource_id = None
 
-    def check_resource(self):
-        self.user_input = self.ids.text_field.text
-        # print(self.user_input)
-        pattern = re.compile('https:\/\/www.missionjuno.swri.edu\/junocam\/'
-                             'processing\?id=(\d+)')
-        match = pattern.match(self.user_input)
+        with open('metadata/title_to_id.json', 'r', encoding='utf-8') as f:
+            self.title_to_id = json.load(f)
+        # Maintain case-insensitivity
+        upper_keys = dict()
+        for k, v in self.title_to_id.items():
+            upper_keys[k.upper()] = v
+        self.title_to_id = upper_keys
 
-        if match:
-            self.res_id = match.group(1)
+        with open('metadata/product_id_to_id.json', 'r', encoding='utf-8') as f:
+            self.product_id_to_id = json.load(f)
+
+    def update_status(self, valid: bool, error_message: str = 'Invalid input'):
+        if valid:
             self.ids.text_field.error = False
             self.ids.preview_resource_btn.disabled = False
             self.ids.download_resource_btn.disabled = False
         else:
-            self.res_id = None
+            self.ids.text_field.helper_text = error_message
             self.ids.text_field.error = True
             self.ids.preview_resource_btn.disabled = True
             self.ids.download_resource_btn.disabled = True
+
+    def check_resource(self):
+        user_input = self.ids.text_field.text
+        url_pattern = re.compile('^https://www.missionjuno.swri.edu/junocam/'
+                                 'processing\?id=(\d+)$')
+        url_match = url_pattern.match(user_input)
+
+        if url_match:
+            self.resource_id = url_match.group(1)
+            self.update_status(True)
+        elif user_input in self.title_to_id.keys():
+            resource_ids = self.title_to_id[user_input.upper()]
+            if len(resource_ids) > 1:
+                self.update_status(
+                    False,
+                    f'Title ambiguity detected: Images IDs {resource_ids} have '
+                    'the same title.')
+            else:
+                self.resource_id = resource_ids[0]
+                self.update_status(True)
+        elif user_input in self.product_id_to_id.keys():
+            self.resource_id = self.product_id_to_id[user_input]
+            self.update_status(True)
+        else:
+            self.update_status(False)
 
     def show_preview_dialog(self):
         content = PreviewDialogContent()
@@ -108,7 +132,7 @@ class DownloadScreen(MDScreen):
         # content.download_preview(self.user_input, self.res_id)
 
     def preview_resource(self, dialog):
-        dialog.content_cls.download_preview(self.user_input, self.res_id)
+        dialog.content_cls.download_preview(self.resource_id)
 
     def show_download_dialog(self):
         content = DownloadDialogContent()
@@ -124,7 +148,7 @@ class DownloadScreen(MDScreen):
         Snackbar(text='Done').open()
 
     def download_resource(self, dialog):
-        r_page = requests.get(self.user_input)
+        r_page = requests.get(f'{RESOURCE_URL_PREFIX}{self.resource_id}')
         r_page_soup = BeautifulSoup(r_page.text, 'html.parser')
         # print(r_page_soup.title)
         processing = r_page_soup.find('div', {
@@ -132,10 +156,10 @@ class DownloadScreen(MDScreen):
                 'processing_tools half stack_full textright padT_half right'
         })
 
-        save_dir = Path('data') / self.res_id
+        save_dir = Path('data') / str(self.resource_id)
 
         if not (save_dir / 'preview.jpg').exists():
-            PreviewDialogContent().download_preview(self.user_input, self.res_id)
+            PreviewDialogContent().download_preview(self.resource_id)
 
         for zip_tag in processing.find_all('a', {'class': 'marR download_zip'}):
             dl_url = DOMAIN + zip_tag['href']
