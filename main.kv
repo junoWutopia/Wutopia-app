@@ -15,12 +15,10 @@ MDBoxLayout:
             text: "My Files"
             icon: "folder"
             on_release: app.switch_screen('my_files')
-        # MDNavigationRailItem:
-        #     text: "Edit"
-        #     icon: "tune"
-        #     on_release:
-        #         app.manager.current = 'edit'
-
+        MDNavigationRailItem:
+            text: "3D module"
+            icon: "video-3d"
+            on_release: app.switch_screen('module_ddd')
     ScreenManager:
         id: screen_manager
 
@@ -36,6 +34,13 @@ MDBoxLayout:
             id: content
             orientation: "vertical"
             padding: dp(30)
+
+            MDRectangleFlatIconButton:
+                padding: dp(10), dp(10)
+                icon: "web"
+                text: "Open NASA's image processing gallery"
+                on_press:
+                    app.open_in_browser('https://www.missionjuno.swri.edu/junocam/processing')
             MDLabel:
                 text: "Please enter the url, name (case-insensitive), or product id of image"
                 font_size: 20
@@ -205,6 +210,8 @@ MDBoxLayout:
                 lock_swiping: True
                 BasicAdjustmentsTab:
                     id: basic_adjustments_tab
+                FiltersTab:
+                    id: filters_tab
 <Module3DItem>
     size_hint_y: None
     height: "86dp"
