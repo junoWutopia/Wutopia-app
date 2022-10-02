@@ -61,6 +61,10 @@ class WutopiaApp(MDApp):
     # def on_stop(self):
     #     self.tmp.unlink()
 
+    @staticmethod
+    def open_in_browser(url: str):
+        webbrowser.open(url)
+
     def switch_screen(self, screen: str):
         self.manager.current = screen
 

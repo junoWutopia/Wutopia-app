@@ -36,6 +36,13 @@ MDBoxLayout:
             id: content
             orientation: "vertical"
             padding: dp(30)
+
+            MDRectangleFlatIconButton:
+                padding: dp(10), dp(10)
+                icon: "web"
+                text: "Open NASA's image processing gallery"
+                on_press:
+                    app.open_in_browser('https://www.missionjuno.swri.edu/junocam/processing')
             MDLabel:
                 text: "Please enter the url, name (case-insensitive), or product id of image"
                 font_size: 20
