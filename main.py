@@ -138,6 +138,9 @@ class WutopiaApp(MDApp):
     def exit_manager(self, *args):
         self.file_manager.close()
 
+    def official_webpage_open(*args):
+        webbrowser.open('https://www.missionjuno.swri.edu/junocam')
+
     def share_dialog(self):
 
         def cancel_btn_bind(*args):

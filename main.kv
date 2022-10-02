@@ -23,6 +23,18 @@ MDBoxLayout:
         id: screen_manager
 
 <HomeScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        Image:
+            pos_hint: {"center_x":0.5, "center_y":0.5}
+            allow_stretch: True
+            keep_ratio: True
+            source: 'home.png'
+        MDFlatButton:
+            font_style: 'H5'
+            pos_hint:{"center_x": 0.5, "y":0.1}
+            text: 'JunoCam Official Webpage'
+            on_release: app.official_webpage_open()
 
 <DownloadScreen>:
     MDBoxLayout:
