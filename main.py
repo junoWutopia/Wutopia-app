@@ -1,14 +1,23 @@
 import os
 import shutil
+import webbrowser
 
+from imgurpython import ImgurClient
+from imgurpython.helpers.error import ImgurClientError
+from kivy.core.clipboard import Clipboard
 from kivy.lang import Builder
+from kivy.metrics import dp
 from kivy.uix.screenmanager import NoTransition
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.button import MDRectangleFlatIconButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.uix.snackbar import Snackbar
+from kivymd.uix.stacklayout import MDStackLayout
 from kivymd.uix.textfield import MDTextField
 from PIL import Image
 
@@ -23,6 +32,7 @@ class WutopiaApp(MDApp):
 
     def __init__(self, **kwargs):
         super(WutopiaApp, self).__init__()
+        self.post_response = None
         self.text_field = None
         self.file_manager = MDFileManager(search='dirs',
                                           selector='folder',
@@ -30,6 +40,7 @@ class WutopiaApp(MDApp):
                                           select_path=self.select_path)
         self.dialog = None
         self.save_path = None
+        self.imgur_client = None
 
     def build(self):
         self.theme_cls.primary_palette = 'Teal'
@@ -70,19 +81,21 @@ class WutopiaApp(MDApp):
     def file_manager_open(self):
         self.file_manager.show(os.path.expanduser('~'))
 
-    def cancel_btn_bind(self, *args):
-        self.dialog.dismiss()
-        self.exit_manager()
-
-    def ok_btn_bind(self, *args):
-        shutil.copy2(
-            self.manager.get_screen('edit').current_resource /
-            'RGB_combined_adjusted.png', self.save_path / self.text_field.text)
-        Snackbar(text='Successfully saved to '
-                 f'{self.save_path / self.text_field.text}').open()
-        self.cancel_btn_bind()
-
     def select_path(self, path: str):
+
+        def cancel_btn_bind(*args):
+            self.dialog.dismiss()
+            self.exit_manager()
+
+        def ok_btn_bind(*args):
+            shutil.copy2(
+                self.manager.get_screen('edit').current_resource /
+                'RGB_combined_adjusted.png',
+                self.save_path / self.text_field.text)
+            Snackbar(text='Successfully saved to '
+                     f'{self.save_path / self.text_field.text}').open()
+            cancel_btn_bind()
+
         self.save_path = Path(path)
         cancel_btn = MDFlatButton(
             text="CANCEL",
@@ -103,12 +116,95 @@ class WutopiaApp(MDApp):
             content_cls=self.text_field,
             buttons=[cancel_btn, ok_btn],
         )
-        cancel_btn.bind(on_press=self.cancel_btn_bind)
-        ok_btn.bind(on_press=self.ok_btn_bind)
+        cancel_btn.bind(on_press=cancel_btn_bind)
+        ok_btn.bind(on_press=ok_btn_bind)
         self.dialog.open()
 
     def exit_manager(self, *args):
         self.file_manager.close()
+
+    def share_dialog(self):
+
+        def cancel_btn_bind(*args):
+            self.dialog.dismiss()
+
+        def open_in_browser_bind(*args):
+            webbrowser.open(f'https://imgur.com/{self.post_response["id"]}')
+
+        def share_to_facebook_bind(*args):
+            webbrowser.open('https://www.facebook.com/sharer/sharer.php?u='
+                            f'{self.post_response["link"]}')
+
+        def share_to_twitter_bind(*args):
+            webbrowser.open('https://twitter.com/share?url='
+                            f'{self.post_response["link"]}')
+
+        def copy_to_clipboard_bind(*args):
+            Clipboard.copy(self.post_response['link'])
+
+        def ok_btn_bind(*args):
+            if self.imgur_client is None:
+                try:
+                    self.imgur_client = ImgurClient('980a2d96e84f2fb', '')
+                except ImgurClientError:
+                    Snackbar(
+                        text='Sorry, Imgur is currently unavailable.').open()
+                    self.dialog.dismiss()
+                    return
+
+            if self.imgur_client is not None:
+                self.post_response = self.imgur_client.upload_from_path(
+                    self.manager.get_screen('edit').current_resource /
+                    'RGB_combined_adjusted.png')
+                print(self.post_response)
+
+            cancel_btn_bind()
+            self.dialog = MDDialog(
+                title='Upload completed',
+                type='custom',
+                content_cls=MDStackLayout(
+                    MDRectangleFlatIconButton(icon='web',
+                                              text='Open in browser',
+                                              on_release=open_in_browser_bind),
+                    MDRectangleFlatIconButton(
+                        icon='clipboard-outline',
+                        text='Copy image direct link URL to clipboard',
+                        on_release=copy_to_clipboard_bind),
+                    MDRectangleFlatIconButton(
+                        icon='facebook',
+                        text='Share to facebook',
+                        on_release=share_to_facebook_bind,
+                    ),
+                    MDRectangleFlatIconButton(
+                        icon='twitter',
+                        text='Share to twitter',
+                        on_release=share_to_twitter_bind,
+                    ),
+                    spacing=dp(10),
+                    size_hint_y=None,
+                    height=dp(120),
+                ),
+                buttons=[MDRaisedButton(text='OK', on_press=cancel_btn_bind)],
+            )
+            self.dialog.open()
+
+        cancel_btn = MDFlatButton(
+            text="No",
+            theme_text_color="Custom",
+        )
+        ok_btn = MDRaisedButton(
+            text="YES",
+            theme_text_color="Custom",
+        )
+        self.dialog = MDDialog(
+            title='Confirm upload to Imgur?',
+            type='custom',
+            buttons=[cancel_btn, ok_btn],
+        )
+
+        cancel_btn.bind(on_press=cancel_btn_bind)
+        ok_btn.bind(on_press=ok_btn_bind)
+        self.dialog.open()
 
 
 if __name__ == '__main__':
