@@ -5,9 +5,13 @@ from kivy.metrics import dp
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.imagelist import MDSmartTile
 from kivymd.uix.label import MDLabel
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.slider import MDSlider
+from kivymd.uix.stacklayout import MDStackLayout
 from kivymd.uix.tab import MDTabsBase
 from kivymd.uix.textfield import MDTextField
 
@@ -117,7 +121,8 @@ class BasicAdjustmentsTab(MDFloatLayout, MDTabsBase):
             return
         self.last_adjustment = this_adjustment
 
-        adjusted = MDApp.get_running_app().manager.get_screen('edit').img
+        adjusted = Image.open(
+            MDApp.get_running_app().manager.get_screen('edit').ids.image.source)
         adjusted = adjust_brightness(adjusted, brightness_factor)
         adjusted = adjust_contrast(adjusted, contrast_factor)
         adjusted = adjust_hsl(adjusted, h, s, l)
@@ -125,20 +130,52 @@ class BasicAdjustmentsTab(MDFloatLayout, MDTabsBase):
         MDApp.get_running_app().save_image_callback(adjusted)
 
 
+class FilterTile(MDSmartTile):
+
+    def __init__(self, filter_name: str, preview_image: Path, **kwargs):
+        super(FilterTile, self).__init__(**kwargs)
+        self.ids.label.text = filter_name
+        self.source = str(preview_image)
+
+    def on_press(self, *args):
+        MDApp.get_running_app().save_image_callback(Image.open(self.source))
+
+
+class FiltersTab(MDScrollView, MDTabsBase):
+
+    def __init__(self, **kwargs):
+        super(FiltersTab, self).__init__(**kwargs)
+        self.initialized = False
+
+    def on_enter(self):
+        edit_screen = MDApp.get_running_app().manager.get_screen('edit')
+        colormapped_dir = Path(
+            edit_screen.ids.image.source).parent / 'colormapped'
+
+        colormapper = Colormapper(edit_screen.rgb_combined, colormapped_dir)
+        colormapper.generate()
+
+        self.ids.grid.add_widget(
+            FilterTile('None', colormapped_dir.parent / 'RGB_combined.png'))
+        for file in colormapped_dir.iterdir():
+            self.ids.grid.add_widget(FilterTile(file.stem, file))
+
+
 class EditScreen(MDScreen):
 
     def __init__(self, **kwargs):
         super(EditScreen, self).__init__(**kwargs)
-        self.img = None
+        self.rgb_combined = None
         self.current_resource = None
 
     def on_enter(self, *args):
         self.ids.basic_adjustments_tab.on_enter()
+        self.ids.filters_tab.on_enter()
 
     def set_resource(self, resource_dir: Union[str, Path]):
         self.current_resource = resource_dir / 'ImageSet'
         RGBCombiner(self.current_resource)
         adjusted_path = self.current_resource / 'RGB_combined_adjusted.png'
         shutil.copy2(self.current_resource / 'RGB_combined.png', adjusted_path)
-        self.img = Image.open(adjusted_path)
+        self.rgb_combined = Image.open(adjusted_path)
         self.ids.image.source = str(adjusted_path)

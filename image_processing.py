@@ -26,6 +26,9 @@ import sys
 # from core.Vis3D import *
 # from core.ColorCorrection import *
 
+from utils import *
+
+
 class RGBCombiner:
 
     def __init__(self, image_dir: Path):
@@ -98,8 +101,46 @@ class RGBCombiner:
 #
     #    visualize_framelets_with_mayavi(framelets, 1024, 2048)
 
-def adjust_hsl(img: Image, hue: float, saturation: float,
-               lightness: float) -> Image:
+
+class Colormapper:
+
+    colormap_types = {
+        'AUTUMN': 0,
+        'BONE': 1,
+        'JET': 2,
+        'WINTER': 3,
+        'RAINBOW': 4,
+        'OCEAN': 5,
+        'SUMMER': 6,
+        'SPRING': 7,
+        'COOL': 8,
+        'HSV': 9,
+        'PINK': 10,
+        'HOT': 11,
+        'PARULA': 12,
+        'MAGMA': 13,
+        'INFERNO': 14,
+        'PLASMA': 15,
+        'VIRIDIS': 16,
+        'CIVIDIS': 17,
+        'TWILIGHT': 18,
+        'TWILIGHT SHIFTED': 19,
+        'TURBO': 20,
+        'DEEPGREEN': 21
+    }
+
+    def __init__(self, img: Image.Image, save_dir: Path):
+        self.img = np.array(img)
+        self.save_dir = get_path(save_dir)
+
+    def generate(self):
+        for name, value in self.colormap_types.items():
+            mapped = cv2.applyColorMap(self.img, value)
+            cv2.imwrite(str(self.save_dir / f'{name}.png'), mapped)
+
+
+def adjust_hsl(img: Image.Image, hue: float, saturation: float,
+               lightness: float) -> Image.Image:
     f_img = np.array(img).astype(np.float32)  # RGB
     f_img /= 255
 
@@ -120,12 +161,12 @@ def adjust_hsl(img: Image, hue: float, saturation: float,
     return Image.fromarray(result_img)
 
 
-def adjust_brightness(img: Image, factor: float) -> Image:
+def adjust_brightness(img: Image.Image, factor: float) -> Image.Image:
     enhancer = ImageEnhance.Brightness(img)
     return enhancer.enhance(factor)
 
 
-def adjust_contrast(img: Image, factor: float) -> Image:
+def adjust_contrast(img: Image.Image, factor: float) -> Image.Image:
     enhancer = ImageEnhance.Contrast(img)
     return enhancer.enhance(factor)
 

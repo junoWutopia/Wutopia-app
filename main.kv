@@ -151,19 +151,41 @@ MDBoxLayout:
                 width: dp(2)
                 rectangle: self.x, self.y, self.width, self.height
 
-        MDBoxLayout:
-            spacing: dp(5)
-            MDIcon:
-                icon: "tune"
-                pos_hint: {"center_x": .5, "center_y": .5}
-            MDLabel:
-                font_style: "H6"
-                text: "Basic adjustments"
+        # MDBoxLayout:
+        #     spacing: dp(5)
+        #     MDIcon:
+        #         icon: "tune"
+        #         pos_hint: {"center_x": .5, "center_y": .5}
+        #     MDLabel:
+        #         font_style: "H6"
+        #         text: "Basic adjustments"
         MDLabel:
             id: note
             text: "Note: The saturation of these images has already been cranked up in the default post-processing pipeline, so increasing the saturation in this panel may not produce significant visual changes. Feel free to try to decrease the saturation instead."
             font_style: "Caption"
 
+<FilterTile>
+    radius: 24
+    box_radius: [0, 0, 24, 24]
+    box_color: 1, 1, 1, 0.3
+    pos_hint: {"center_x": .5, "center_y": .5}
+    size_hint_y: None
+    height: dp(120)
+
+    MDLabel:
+        id: label
+        bold: True
+        color: 0, 0, 0, 1
+
+<FiltersTab>:
+    icon: "image-filter-center-focus"
+    title: "Filters"
+    MDGridLayout:
+        id: grid
+        adaptive_height: True
+        padding: dp(10)
+        spacing: dp(5)
+        cols: 3
 
 <EditScreen>:
     MDBoxLayout:
@@ -179,6 +201,9 @@ MDBoxLayout:
                 Image:
                     id: image
             MDTabs:
+                on_tab_switch: app.on_tab_switch(*args)
                 lock_swiping: True
                 BasicAdjustmentsTab:
                     id: basic_adjustments_tab
+                FiltersTab:
+                    id: filters_tab

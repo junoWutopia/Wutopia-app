@@ -206,6 +206,11 @@ class WutopiaApp(MDApp):
         ok_btn.bind(on_press=ok_btn_bind)
         self.dialog.open()
 
+    def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label,
+                      tab_text):
+        if tab_text == 'Filters':
+            self.manager.get_screen('edit').ids.filters_tab.pipeline()
+
 
 if __name__ == '__main__':
     app = WutopiaApp()
